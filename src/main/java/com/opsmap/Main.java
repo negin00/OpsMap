@@ -43,7 +43,6 @@ public class Main extends Application {
         );
         card.setEffect(new DropShadow(30, Color.rgb(0, 0, 0, 0.5)));
 
-        // لوگو و عنوان
         Label logo = new Label("🗺️");
         logo.setFont(Font.font(70));
 
@@ -59,7 +58,6 @@ public class Main extends Application {
         version.setFont(Font.font(12));
         version.setTextFill(Color.GRAY);
 
-        // دکمه‌ها
         Button serverBtn = createLauncherButton("🖥️ راه‌اندازی سرور", "#9C27B0");
         serverBtn.setOnAction(e -> startServer(stage));
 
@@ -69,12 +67,10 @@ public class Main extends Application {
         Button bothBtn = createLauncherButton("🚀 سرور + کلاینت", "#2196F3");
         bothBtn.setOnAction(e -> startBoth(stage));
 
-        // وضعیت سرور
         Label serverStatus = new Label("⚪ سرور غیرفعال");
         serverStatus.setTextFill(Color.GRAY);
         serverStatus.setId("serverStatus");
 
-        // اطلاعات
         Label info = new Label(
                 "📋 راهنما:\n" +
                         "• سرور: اجرای سرور برای میزبانی\n" +
@@ -153,18 +149,15 @@ public class Main extends Application {
     }
 
     private void startBoth(Stage stage) {
-        // اول سرور
         if (server == null) {
             new Thread(() -> {
                 server = new MapServer();
                 server.start();
             }).start();
 
-            // کمی صبر کن تا سرور بالا بیاد
             try { Thread.sleep(500); } catch (InterruptedException e) {}
         }
 
-        // بعد کلاینت
         openLoginPage(stage);
     }
 
