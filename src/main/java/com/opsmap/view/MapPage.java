@@ -33,14 +33,12 @@ public class MapPage {
     private GraphicsContext gc;
     private List<MapShape> shapes = new CopyOnWriteArrayList<>();
 
-    // ابزارها
     private String currentTool = "LINE";
     private String currentColor = "#FF0000";
     private double strokeWidth = 2.0;
     private boolean isDrawing = false;
     private double startX, startY;
 
-    // UI Elements
     private Label statusLabel;
     private Label shapesCountLabel;
     private Label usersLabel;
@@ -48,24 +46,21 @@ public class MapPage {
     private TextField chatInput;
     private ScrollPane chatScrollPane;
 
-    // برای دنبال کردن موس کاربران
     private Map<String, double[]> userCursors = new ConcurrentHashMap<>();
     private Map<String, Label> cursorLabels = new HashMap<>();
     private Pane canvasPane;
-    private boolean receivingHistory = false;  // برای تشخیص تاریخچه از real-time
+    private boolean receivingHistory = false;  
 
 
-    // Constructor با 2 آرگومان (برای سازگاری با LoginPage)
     public MapPage(Stage stage, User user) {
         this.stage = stage;
         this.currentUser = user;
-        this.client = null; // بعداً می‌توان تنظیم کرد
+        this.client = null; 
         show();
         initializeClient();
 
     }
 
-    // Constructor با 3 آرگومان
     public MapPage(Stage stage, MapClient client, User user) {
         this.stage = stage;
         this.client = client;
@@ -76,11 +71,9 @@ public class MapPage {
     private void initializeClient() {
         try {
             this.client = new MapClient();
-            // ⭐ اول handler تنظیم شود
             client.setOnMessageReceived(this::handleServerMessage);
             client.connect("localhost", 5555);
 
-            // ارسال اطلاعات کاربر به سرور
             if (client.isConnected()) {
                 client.sendMessage("JOIN:" + currentUser.getUsername() + ":" + currentUser.getRole());
             }
@@ -94,7 +87,7 @@ public class MapPage {
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #1a1a2e;");
 
-       /* // تنظیم handler برای دریافت پیام
+     /* 
         if (client != null) {
             try {
                 client.setOnMessageReceived(this::handleServerMessage);
@@ -102,7 +95,7 @@ public class MapPage {
                 System.err.println("خطا در تنظیم message handler: " + e.getMessage());
             }
         }
-*/
+     */
         root.setTop(createTopBar());
         root.setLeft(createToolPanel());
 
@@ -134,12 +127,10 @@ public class MapPage {
         }
     }
 
-    // متد کمکی برای نقش فارسی
     private String getRolePersian() {
         try {
             return currentUser.getRolePersian();
         } catch (Exception e) {
-            // اگر متد وجود نداشت
             String role = currentUser.getRole().toString();
             switch (role) {
                 case "COMMANDER": return "فرمانده";
@@ -247,7 +238,6 @@ public class MapPage {
         clearAllBtn.setMaxWidth(Double.MAX_VALUE);
         clearAllBtn.setStyle("-fx-background-color: #c0392b; -fx-text-fill: white;");
 
-        // فقط فرمانده می‌تواند همه را پاک کند
         if (!canDeleteAll()) {
             clearAllBtn.setDisable(true);
             clearAllBtn.setTooltip(new Tooltip("فقط فرمانده می‌تواند نقشه را پاک کند"));
@@ -279,7 +269,6 @@ public class MapPage {
         chatPanel.setPadding(new Insets(10));
         chatPanel.setStyle("-fx-background-color: #1f1f3d; -fx-min-width: 280; -fx-max-width: 280;");
 
-        // لیست کاربران آنلاین
         Label usersTitle = new Label("👥 کاربران آنلاین");
         usersTitle.setTextFill(Color.WHITE);
         usersTitle.setFont(Font.font("Arial", FontWeight.BOLD, 12));
@@ -291,7 +280,6 @@ public class MapPage {
                         "-fx-control-inner-background: #2d2d44;" +
                         "-fx-border-color: #444;"
         );
-// اضافه کردن خودمان به لیست
         onlineUsersList.getItems().add("👤 " + currentUser.getUsername() + " (من)");
 
         Separator usersSep = new Separator();
@@ -349,7 +337,6 @@ public class MapPage {
         canvas.setOnMouseMoved(e -> {
             coordsLabel.setText(String.format("📍 موقعیت: %.0f, %.0f", e.getX(), e.getY()));
 
-            // ارسال موقعیت موس به سرور
             if (client != null && client.isConnected()) {
                 client.sendMessage("CURSOR:" + currentUser.getUsername() + ":" + (int) e.getX() + ":" + (int) e.getY());
             }
@@ -392,11 +379,10 @@ public class MapPage {
         });
     }
 
-    // پیش‌نمایش با خط‌چین
     private void drawPreview(double endX, double endY) {
         gc.setStroke(Color.web(currentColor).deriveColor(0, 1, 1, 0.5));
         gc.setLineWidth(strokeWidth);
-        gc.setLineDashes(5, 5); // خط‌چین
+        gc.setLineDashes(5, 5); 
 
         switch (currentTool) {
             case "LINE":
@@ -417,7 +403,7 @@ public class MapPage {
                 break;
         }
 
-        gc.setLineDashes(0); // برگشت به حالت عادی
+        gc.setLineDashes(0); 
     }
 
     private void createShape(double endX, double endY) {
@@ -530,13 +516,11 @@ public class MapPage {
         }
     }
 
-    // ==================== متدهای کمکی برای دسترسی ====================
 
     private boolean canDraw() {
         try {
             return currentUser.canDraw();
         } catch (Exception e) {
-            // اگر متد وجود نداشت، بر اساس نقش تصمیم بگیر
             String role = currentUser.getRole().toString();
             return role.equals("COMMANDER") || role.equals("OFFICER");
         }
@@ -560,7 +544,6 @@ public class MapPage {
         }
     }
 
-    // ==================== عملیات ====================
 
     private void undoLastShape() {
         if (!canDeleteOwn()) {
@@ -590,7 +573,6 @@ public class MapPage {
             return;
         }
 
-        // ارسال به سرور
         if (client != null && client.isConnected()) {
             try {
                 client.deleteMyShapes();
@@ -637,10 +619,8 @@ public class MapPage {
     private void sendChatMessage() {
         String message = chatInput.getText().trim();
         if (!message.isEmpty()) {
-            // نمایش پیام خودمان فوری
             addChatMessage(currentUser.getUsername(), message, "#AAAAFF");
 
-            // ارسال به سرور
             if (client != null && client.isConnected()) {
                 try {
                     client.sendChat(message);
@@ -668,13 +648,11 @@ public class MapPage {
             System.out.println("🔔 پیام دریافتی: " + message);
 
             try {
-                // ===== شروع تاریخچه =====
                 if (message.equals("HISTORY_START")) {
                     receivingHistory = true;
                     System.out.println("📜 شروع دریافت تاریخچه...");
                 }
 
-                // ===== پایان تاریخچه =====
                 else if (message.equals("HISTORY_END")) {
                     receivingHistory = false;
                     redrawCanvas();
@@ -682,7 +660,6 @@ public class MapPage {
                     System.out.println("📜 پایان تاریخچه - " + shapes.size() + " شکل دریافت شد");
                 }
 
-                // ===== چت =====
                 else if (message.startsWith("CHAT:")) {
                     String[] parts = message.substring(5).split(":", 2);
                     if (parts.length >= 2) {
@@ -694,7 +671,6 @@ public class MapPage {
                     }
                 }
 
-                // ===== موقعیت موس =====
                 else if (message.startsWith("CURSOR:")) {
                     String[] parts = message.substring(7).split(":");
                     if (parts.length >= 3) {
@@ -709,15 +685,12 @@ public class MapPage {
                     }
                 }
 
-                // ===== دریافت شکل =====
                 else if (message.startsWith("LINE:") || message.startsWith("RECT:") ||
                         message.startsWith("CIRCLE:") || message.startsWith("TEXT:")) {
                     MapShape shape = MapShape.fromNetworkFormat(message);
                     if (shape != null) {
                         System.out.println("📥 شکل دریافت شد - ID: " + shape.getId() + " | Owner: " + shape.getOwner());
 
-                        // اگر تاریخچه است → همه شکل‌ها را بگیر
-                        // اگر real-time است → فقط شکل‌های دیگران
                         boolean shouldAdd = receivingHistory || !shape.getOwner().equals(currentUser.getUsername());
 
                         if (shouldAdd) {
@@ -734,7 +707,6 @@ public class MapPage {
                     }
                 }
 
-                // ===== حذف یک شکل =====
                 else if (message.startsWith("DELETE_SHAPE:")) {
                     String shapeId = message.substring(13);
                     System.out.println("🗑️ درخواست حذف شکل با ID: " + shapeId);
@@ -747,7 +719,6 @@ public class MapPage {
                     }
                 }
 
-                // ===== حذف شکل‌های یک کاربر =====
                 else if (message.startsWith("DELETE_USER_SHAPES:")) {
                     String username = message.substring(19);
                     shapes.removeIf(s -> s.getOwner().equals(username));
@@ -755,7 +726,6 @@ public class MapPage {
                     updateShapesCount();
                 }
 
-                // ===== پاک کردن همه =====
                 else if (message.equals("CLEAR_ALL")) {
                     shapes.clear();
                     redrawCanvas();
@@ -763,7 +733,6 @@ public class MapPage {
                     addChatMessage("سیستم", "نقشه پاک شد", "#FF9800");
                 }
 
-                // ===== کاربر جدید =====
                 else if (message.startsWith("USER_JOINED:")) {
                     String[] parts = message.substring(12).split(":");
                     String username = parts[0];
@@ -772,14 +741,12 @@ public class MapPage {
                     }
                 }
 
-                // ===== کاربر خارج شد =====
                 else if (message.startsWith("USER_LEFT:")) {
                     String username = message.substring(10);
                     addChatMessage("سیستم", username + " خارج شد", "#FF6600");
                     removeCursorDisplay(username);
                 }
 
-                // ===== لیست کاربران (مهم!) =====
                 else if (message.startsWith("USERLIST:")) {
                     String data = message.substring(9);
 
@@ -798,7 +765,6 @@ public class MapPage {
                         userEntry = userEntry.trim();
                         if (userEntry.isEmpty()) continue;
 
-                        // فرمت: username:role
                         String uname;
                         String urole;
 
@@ -827,12 +793,10 @@ public class MapPage {
                     System.out.println("👥 لیست کاربران بروز شد: " + count + " نفر");
                 }
 
-                // ===== خوش‌آمدگویی =====
                 else if (message.startsWith("WELCOME:")) {
                     updateStatus("✅ متصل شد به سرور", Color.LIGHTGREEN);
                 }
 
-                // ===== خطا =====
                 else if (message.startsWith("ERROR:")) {
                     showAlert("خطا", message.substring(6));
                 }
@@ -918,7 +882,6 @@ public class MapPage {
                     updateShapesCount();
                     updateStatus("📂 نقشه بارگذاری شد: " + mapData.getName(), Color.LIGHTGREEN);
 
-                    // ارسال به سرور
                     if (client != null && client.isConnected()) {
                         for (MapShape shape : shapes) {
                             client.sendMessage(shape.toNetworkFormat());
@@ -962,16 +925,13 @@ public class MapPage {
             client.disconnect();
         }
 
-        // تلاش برای logout از UserManager
         try {
             UserManager.getInstance().logout(currentUser.getUsername());
         } catch (Exception e) {
-            // اگر UserManager وجود نداشت، مشکلی نیست
         }
 
         stage.close();
 
-        // باز کردن صفحه لاگین
         try {
             Stage loginStage = new Stage();
             new LoginPage().show(loginStage);
