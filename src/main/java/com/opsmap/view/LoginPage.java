@@ -27,10 +27,8 @@ public class LoginPage {
         StackPane root = new StackPane();
         root.setStyle("-fx-background-color: linear-gradient(to bottom right, #0f0c29, #302b63, #24243e);");
 
-        // افکت‌های پس‌زمینه
         addBackgroundEffects(root);
 
-        // کارت اصلی
         VBox mainCard = createMainCard();
         root.getChildren().add(mainCard);
 
@@ -39,12 +37,10 @@ public class LoginPage {
         primaryStage.setResizable(false);
         primaryStage.show();
 
-        // انیمیشن ورود
         playEntryAnimation(mainCard);
     }
 
     private void addBackgroundEffects(StackPane root) {
-        // دایره‌های تزئینی متحرک
         for (int i = 0; i < 5; i++) {
             Circle circle = new Circle(50 + i * 30);
             circle.setFill(Color.TRANSPARENT);
@@ -78,11 +74,9 @@ public class LoginPage {
         );
         card.setEffect(new DropShadow(30, Color.rgb(0, 0, 0, 0.5)));
 
-        // لوگو
         Label logo = new Label("🗺️");
         logo.setFont(Font.font(60));
 
-        // عنوان
         Label title = new Label("OpsMap");
         title.setFont(Font.font("Arial", FontWeight.BOLD, 36));
         title.setTextFill(Color.WHITE);
@@ -91,7 +85,6 @@ public class LoginPage {
         subtitle.setFont(Font.font("Arial", 14));
         subtitle.setTextFill(Color.LIGHTGRAY);
 
-        // فیلدها
         VBox fieldsBox = new VBox(15);
         fieldsBox.setAlignment(Pos.CENTER);
 
@@ -101,7 +94,6 @@ public class LoginPage {
         confirmPasswordField.setVisible(false);
         confirmPasswordField.setManaged(false);
 
-        // انتخاب نقش (برای ثبت‌نام)
         HBox roleBox = new HBox(10);
         roleBox.setAlignment(Pos.CENTER);
         roleBox.setVisible(false);
@@ -122,30 +114,26 @@ public class LoginPage {
 
         fieldsBox.getChildren().addAll(usernameField, passwordField, confirmPasswordField, roleBox);
 
-        // دکمه‌ها
         Button mainButton = createStyledButton("ورود", "#4CAF50");
         Button switchButton = createStyledButton("ثبت‌نام کاربر جدید", "transparent");
         switchButton.setStyle(switchButton.getStyle() + "-fx-border-color: white; -fx-border-width: 1;");
 
-        // پیام خطا
         Label errorLabel = new Label();
         errorLabel.setTextFill(Color.rgb(255, 100, 100));
         errorLabel.setFont(Font.font(12));
         errorLabel.setVisible(false);
 
-        // پیام موفقیت
         Label successLabel = new Label();
         successLabel.setTextFill(Color.rgb(100, 255, 100));
         successLabel.setFont(Font.font(12));
         successLabel.setVisible(false);
 
-        // اطلاعات کاربران پیش‌فرض
         Label infoLabel = new Label("کاربران پیش‌فرض:\nadmin / admin123 (فرمانده)\noperator1 / 1234 (اپراتور)\nobserver1 / 1234 (ناظر)");
         infoLabel.setTextFill(Color.GRAY);
         infoLabel.setFont(Font.font(10));
         infoLabel.setTextAlignment(TextAlignment.CENTER);
 
-        // رویدادها
+        
         switchButton.setOnAction(e -> {
             isLoginMode = !isLoginMode;
 
@@ -177,7 +165,6 @@ public class LoginPage {
             successLabel.setVisible(false);
 
             if (isLoginMode) {
-                // ورود
                 if (username.isEmpty() || password.isEmpty()) {
                     showError(errorLabel, "لطفاً نام کاربری و رمز عبور را وارد کنید");
                     return;
@@ -191,7 +178,6 @@ public class LoginPage {
                     shakeNode(mainButton);
                 }
             } else {
-                // ثبت‌نام
                 String confirmPass = confirmPasswordField.getText();
 
                 if (username.length() < 3) {
